@@ -1,0 +1,38 @@
+services:
+  backend:
+    image: node:latest
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "81:80"
+    volumes:
+      - ./build/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+  
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: fittrack
+    expose:
+      - ${DB_PORT}
+    ports:
+      - 3307:${DB_PORT}
+    volumes:
+      - db_data:/var/lib/mysql
+    
+volumes:
+  node_modules:
+  db_data:
